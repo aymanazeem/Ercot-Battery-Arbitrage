@@ -8,8 +8,7 @@ to earn the most from the price swings. It runs end to end, from downloading raw
 tested price forecast, an exact battery optimiser, a backtest, a small web service, and a dashboard
 you can click through.
 
-<!-- Replace the URL below with your Streamlit Community Cloud link once the app is deployed. -->
-**[Open the live dashboard](https://your-app-name.streamlit.app)**, or run it locally with `make dashboard`.
+**[Open the live dashboard](https://ercot-battery-arbitrage.streamlit.app)**, or run it locally with `make dashboard`.
 
 ## The idea
 
