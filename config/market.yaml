@@ -1,0 +1,23 @@
+market:
+  timezone_display: America/Chicago
+  primary_settlement_point: HB_HUBAVG
+  secondary_settlement_point: HB_WEST
+
+# offer cap regimes, a null bound means open ended
+# rows are tagged by regime so a backtest never blends the three distributions
+regimes:
+  - name: pre2022
+    start: null
+    end: 2021-12-31
+    offer_cap_da_usd_per_mwh: 9000.0
+    offer_cap_rt_usd_per_mwh: 9000.0
+  - name: swcap5000
+    start: 2022-01-01
+    end: 2025-12-04
+    offer_cap_da_usd_per_mwh: 5000.0
+    offer_cap_rt_usd_per_mwh: 5000.0
+  - name: rtcb
+    start: 2025-12-05
+    end: null
+    offer_cap_da_usd_per_mwh: 5000.0
+    offer_cap_rt_usd_per_mwh: 2000.0

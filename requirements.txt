@@ -1,0 +1,13 @@
+# Dashboard runtime dependencies, pinned to the tested versions.
+#
+# The dashboard is a read only front end over the precomputed parquet artifacts, so it needs
+# only the data stack, the config parser, and the dispatch optimiser it re solves per day. The
+# ingest, forecasting, and serving dependencies (gridstatus, scikit-learn, lightgbm, fastapi,
+# uvicorn, xarray) are deliberately absent, which keeps the cloud build small and reliable.
+streamlit==1.59.0
+pandas==2.3.3
+numpy==2.5.1
+pyarrow==24.0.0
+pydantic==2.13.4
+pyyaml==6.0.3
+pulp==3.3.2

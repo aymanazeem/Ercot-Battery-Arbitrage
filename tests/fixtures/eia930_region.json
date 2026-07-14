@@ -1,0 +1,11 @@
+{
+  "response": {
+    "total": 4,
+    "data": [
+      {"period": "2024-01-01T00", "respondent": "ERCO", "respondent-name": "Electric Reliability Council of Texas", "type": "D", "type-name": "Demand", "value": "40000", "value-units": "megawatthours"},
+      {"period": "2024-01-01T00", "respondent": "ERCO", "respondent-name": "Electric Reliability Council of Texas", "type": "DF", "type-name": "Day-ahead demand forecast", "value": "41000", "value-units": "megawatthours"},
+      {"period": "2024-01-01T00", "respondent": "ERCO", "respondent-name": "Electric Reliability Council of Texas", "type": "NG", "type-name": "Net generation", "value": "39500", "value-units": "megawatthours"},
+      {"period": "2024-01-01T00", "respondent": "ERCO", "respondent-name": "Electric Reliability Council of Texas", "type": "TI", "type-name": "Total interchange", "value": "-500", "value-units": "megawatthours"}
+    ]
+  }
+}

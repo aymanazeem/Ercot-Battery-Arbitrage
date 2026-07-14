@@ -1,0 +1,40 @@
+{
+  "da_prices": {
+    "rows": 33600,
+    "gaps": 0,
+    "negative_share": 0.023095238095238096,
+    "by_regime": {
+      "swcap5000": {
+        "rows": 33600,
+        "min_price": -13.3,
+        "max_price": 2236.49,
+        "above_cap": 0
+      }
+    }
+  },
+  "rt_prices": {
+    "rows": 134400,
+    "gaps": 0,
+    "negative_share": 0.056532738095238094,
+    "by_regime": {
+      "swcap5000": {
+        "rows": 134400,
+        "min_price": -37.65,
+        "max_price": 4964.84,
+        "above_cap": 0
+      }
+    }
+  },
+  "load": {
+    "rows": 16800,
+    "gaps": 0,
+    "min": 35130.11022949218,
+    "max": 87054.54956054688
+  },
+  "weather": {
+    "rows": 16800,
+    "gaps": 0,
+    "min": -8.364583333333334,
+    "max": 40.385416666666664
+  }
+}

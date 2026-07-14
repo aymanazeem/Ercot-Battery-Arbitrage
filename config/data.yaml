@@ -1,0 +1,24 @@
+paths:
+  raw: data/raw
+  processed: data/processed
+  features: data/features
+  results: data/results
+
+# default backtest window. it stays in one offer cap regime, and has a full year of
+# prices before it so the walk forward always has enough to train on
+window:
+  backtest_start: 2025-01-01
+  backtest_end: 2025-11-30
+
+sources:
+  ercot:
+    # the hosted gridstatus.io api, it serves years of history the free feed cannot reach
+    provider: gridstatus_io
+    api_key_env: GRIDSTATUS_API_KEY
+  eia930:
+    balancing_authority: ERCO
+    api_path: electricity/rto
+    api_key_env: EIA_API_KEY
+  # use ERCOT weather zone temperature, so no ERA5 account is needed
+  weather:
+    source: ercot_weather_zone

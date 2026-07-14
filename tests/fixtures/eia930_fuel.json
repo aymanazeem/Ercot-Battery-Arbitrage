@@ -1,0 +1,9 @@
+{
+  "response": {
+    "total": 2,
+    "data": [
+      {"period": "2024-01-01T00", "respondent": "ERCO", "fueltype": "NG", "type-name": "Natural gas", "value": "20000", "value-units": "megawatthours"},
+      {"period": "2024-01-01T00", "respondent": "ERCO", "fueltype": "WND", "type-name": "Wind", "value": "12000", "value-units": "megawatthours"}
+    ]
+  }
+}

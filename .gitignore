@@ -1,0 +1,37 @@
+# secrets
+.env
+
+# local notes
+PLAN.md
+PROGRESS.md
+
+# ignore data files, keep the empty folders
+data/**
+!data/**/
+!data/**/.gitkeep
+# ship the processed prices and the results tables so the dashboard works, keep the rest local
+!data/processed/**
+!data/results/**
+
+# streamlit local secrets, never commit these
+.streamlit/secrets.toml
+.streamlit/credentials.toml
+
+# python caches and build files
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+build/
+dist/
+
+# virtual environment
+.venv/
+venv/
+
+# macos
+.DS_Store
+
+

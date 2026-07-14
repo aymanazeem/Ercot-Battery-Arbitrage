@@ -1,0 +1,8 @@
+# Streamlit configuration for the ERCOT BESS dashboard.
+
+[theme]
+base = "light"
+primaryColor = "#1f6feb"
+
+[browser]
+gatherUsageStats = false

@@ -1,0 +1,25 @@
+# the same features the LEAR benchmark uses, so the comparison is fair
+features:
+  price_lag_days: [1, 2, 3, 7]
+  calendar:
+    - hour_of_day
+    - day_of_week
+    - month
+    - holiday_flag
+  exogenous:
+    - da_demand_forecast_mw
+    - temp_c_ercot
+
+# three to four years works best, this is the three year lower bound
+calibration:
+  window_days: 1095
+  # retrain every delivery day, one means daily
+  recalibrate_every_days: 1
+  # need a full year of history before the first forecast, so a full season is always seen
+  min_train_days: 365
+
+forecast:
+  horizon_hours: 24
+
+# one seed, so the same config and data give the same numbers
+seed: 42

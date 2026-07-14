@@ -1,0 +1,55 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ercot-bess"
+version = "0.1.0"
+description = "ERCOT market intelligence and battery arbitrage platform"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "pandas==2.3.3",
+    "pyarrow==24.0.0",
+    "gridstatus==0.36.0",
+    "requests==2.34.2",
+    "pydantic==2.13.4",
+    "pyyaml==6.0.3",
+    "scikit-learn==1.9.0",
+    "lightgbm==4.6.0",
+    "pulp==3.3.2",
+    "fastapi==0.139.0",
+    "uvicorn==0.50.2",
+    "streamlit==1.59.0",
+    "xarray==2026.4.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest==9.1.1",
+    "ruff==0.15.20",
+    # the fastapi test client needs httpx, this version uses httpx2
+    "httpx2==2.5.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers"
+markers = [
+    "config: config loading and scaffold",
+    "ingest: data ingestion",
+    "validate: validation and canonical build",
+    "features: feature engineering",
+    "forecast: forecasting and walk forward evaluation",
+    "optimise: battery arbitrage optimiser",
+    "backtest: backtest engine",
+    "api: api and scheduled pipeline",
+    "dashboard: dashboard",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
