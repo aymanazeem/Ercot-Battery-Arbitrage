@@ -70,6 +70,49 @@ far enough to wipe out the forecast driven profit. The two curves below plot cum
 days ranked from best to worst, and both show the known result that a small share of days carry most
 of the year.
 
+## How it fits together
+
+```mermaid
+flowchart TD
+    cfg[/config/]
+
+    subgraph pipeline ["batch pipeline, run by make refresh"]
+        direction TB
+        src([gridstatus.io API]) -->|download| ingest[ingest]
+        ingest --> raw[(raw parquet)]
+        raw -->|"clean, dedup, tag regime"| build[validate and build]
+        build --> proc[(processed tables)]
+        proc -->|day ahead matrix| feat[features]
+        feat --> matrix[(model matrix)]
+        matrix -->|"walk forward, no leakage"| fc["forecast, four models"]
+        fc --> fcres[(forecasts and metrics)]
+        proc -->|realised prices| bt["backtest, ceiling vs forecast driven"]
+        fcres -->|predicted prices| bt
+        bt --> btres[(backtest results)]
+    end
+
+    opt[["optimise, MILP"]]
+
+    subgraph serving ["read only services"]
+        api([API])
+        dash([dashboard])
+    end
+
+    cfg -.-> pipeline
+    opt -.-> bt
+    opt -.-> dash
+    proc --> serving
+    fcres --> serving
+    btres --> serving
+```
+
+The batch pipeline runs top to bottom, and each stage writes the tables the next one reads, so
+`make refresh` runs the whole chain end to end. The cylinders are the files on disk. The forecast is
+trained walk forward, so no future price leaks into a past prediction, and the backtest scores two
+runs, a perfect foresight ceiling and a forecast driven operator, whose ratio is the capture rate.
+The optimiser is the shared MILP the backtest and the dashboard both call. Config drives every stage,
+and the two services only read the finished tables, so what they show cannot drift from the output.
+
 ## How it works
 
 **Collecting the data.** Downloads the raw inputs. ERCOT day ahead and real time prices, the day ahead
