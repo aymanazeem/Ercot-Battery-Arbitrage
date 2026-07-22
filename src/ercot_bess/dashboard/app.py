@@ -79,21 +79,6 @@ def _index_of(options: list, value, default: int = 0) -> int:
     return options.index(value) if value in options else default
 
 
-def _primary_only_note(subject: str, point: str, primary: str) -> str:
-    """Explain why an analysis view is empty, it is built for the primary hub only.
-
-    The forecast, dispatch, and results are built for the primary settlement point alone, so a
-    reader who picks another point sees no chart. This turns that blank into a clear pointer back
-    to the primary hub. When the point already is the primary the table is simply not built yet.
-    """
-    if point == primary:
-        return f"{subject} is not built yet, run the pipeline first."
-    return (
-        f"{subject} is built for the primary hub {primary} only. "
-        f"{point} still has price history in the Prices tab, so select {primary} for the full analysis."
-    )
-
-
 def _render_prices(data: DashboardData, cfg: Config, point: str, chart_days: int) -> None:
     st.subheader(f"Prices for {point}")
     display_tz = cfg.market.market.timezone_display
@@ -115,7 +100,6 @@ def _render_prices(data: DashboardData, cfg: Config, point: str, chart_days: int
 
 def _render_forecast(data: DashboardData, cfg: Config, point: str, model: str) -> None:
     st.subheader(f"Forecast against realised for {model}")
-    primary = cfg.market.market.primary_settlement_point
     try:
         forecasts = data.forecasts()
         metrics = data.metrics()
@@ -124,7 +108,7 @@ def _render_forecast(data: DashboardData, cfg: Config, point: str, model: str) -
         return
     day = views.forecast_day(forecasts, point, model)
     if day.curve.empty:
-        st.info(_primary_only_note("The forecast", point, primary))
+        st.info("the forecast is not built yet, run the pipeline first.")
         return
     error = views.forecast_error(metrics, point, model)
     st.metric("MAE USD per MWh", _fmt(error[MAE]))
@@ -145,7 +129,7 @@ def _render_dispatch(data: DashboardData, cfg: Config, point: str) -> None:
         return
     days = views.available_days(backtest, point)
     if not days:
-        st.info(_primary_only_note("The dispatch backtest", point, cfg.market.market.primary_settlement_point))
+        st.info("the dispatch backtest is not built yet, run the pipeline first.")
         return
     default_day = views.representative_day(backtest, point)
     day = st.selectbox(
@@ -191,7 +175,7 @@ def _render_results(data: DashboardData, cfg: Config, point: str) -> None:
         return
     table = views.annualised_by_duration(sensitivities, point)
     if table.empty:
-        st.info(_primary_only_note("The results", point, cfg.market.market.primary_settlement_point))
+        st.info("the results are not built yet, run the pipeline first.")
         return
     st.markdown("Annualised profit per kW year across duration, scenario, and cycling cost")
     st.dataframe(table)
@@ -230,14 +214,13 @@ def main() -> None:
     st.title("ERCOT battery arbitrage dashboard")
 
     try:
-        da_prices = data.prices("da")
+        data.prices("da")
     except DashboardDataMissing:
         st.error("no processed prices found, run the pipeline before opening the dashboard.")
         return
 
-    points = views.available_settlement_points(da_prices)
-    primary = cfg.market.market.primary_settlement_point
-    point = st.sidebar.selectbox("Settlement point", points, index=_index_of(points, primary))
+    # the analysis is built for the one configured hub, so it drives every view
+    point = cfg.market.market.primary_settlement_point
 
     models = _models(data)
     model = st.sidebar.selectbox("Forecast model", models, index=_index_of(models, MODEL_LIGHTGBM))

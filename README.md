@@ -40,9 +40,9 @@ benchmark, and a battery optimisation and backtest built the way the industry fr
 
 ## What it looks like
 
-The dashboard has four tabs, all live at the link above. You pick a settlement point and a forecast
-model once in the sidebar, and the tabs follow those choices. Everything below is drawn from the real
-data, two ERCOT hubs across 2024 and 2025.
+The dashboard has four tabs, all live at the link above. You pick a forecast model once in the
+sidebar, and the tabs follow that choice. Everything below is drawn from the real data, the ERCOT
+hub average across 2024 and 2025.
 
 **Prices.** The day ahead and real time price history for the chosen hub, with the latest price of
 each shown above its chart. Prices sit low and calm for long stretches, near 30 dollars per MWh, then
@@ -51,7 +51,7 @@ That pattern, quiet prices broken by sharp peaks, is the whole reason a battery 
 
 **Forecast.** The forecast against what really happened for the chosen model, with the error scores
 above. The default model is off by about 12 dollars per MWh on average. Its error measured against a
-naive same hour last week guess is 0.84, so it makes about a sixth less error than that baseline. The
+naive same hour last week guess is 0.85, so it makes about fifteen percent less error than that baseline. The
 line chart shows the predicted and the real prices for one delivery day tracking each other closely
 through the overnight lull and up into the evening peak.
 
@@ -124,9 +124,8 @@ once a day, which keeps the framing simple. Forecast the next day, schedule agai
 settle against what actually cleared. Real time prices are collected and shown, but the headline
 backtest is on day ahead.
 
-**The location.** The default price is an ERCOT hub average rather than a single node, so the first
-result reflects system wide value and not one location's congestion quirks. A West Texas hub is
-included as a second location.
+**The location.** The price is an ERCOT hub average rather than a single node, so the result
+reflects system wide value and not one location's congestion quirks.
 
 **Market rule changes.** ERCOT has changed its price cap over the years, and each period has a
 different price distribution. The default backtest window sits entirely inside one period, and the code
@@ -136,8 +135,9 @@ refuses to blend two periods into a single result without saying so.
 small asset. The ceiling assumes perfect foresight and perfect dispatch, which is why it is a ceiling
 and not a plan. Efficiency is a single constant. Battery ageing is reported rather than charged against
 the headline profit. Ancillary service income is left out. Each day is scheduled on its own, with no
-carrying of energy across midnight. Each of these is stated plainly so the numbers are read for what
-they are.
+carrying of energy across midnight. The two daylight saving change days each year, which run twenty
+three and twenty five hours rather than a clean twenty four, are left out of the backtest. Each of
+these is stated plainly so the numbers are read for what they are.
 
 ## Setup
 
@@ -146,8 +146,7 @@ make setup
 ```
 
 This creates a local environment and installs the pinned dependencies. Then copy `.env.example` to
-`.env` and add a gridstatus.io API key, which the data collection step needs. An EIA key is optional
-and only used for the extra grid demand feed.
+`.env` and add a gridstatus.io API key, which the data collection step needs.
 
 ## Seeing it run
 
@@ -175,9 +174,9 @@ make backtest     # run the arbitrage backtest
 make dashboard
 ```
 
-This opens the dashboard in your browser at http://localhost:8501. Pick a settlement point and a
-forecast model in the sidebar, then move through the four tabs described above. A hosted version can be
-deployed to Streamlit Community Cloud, and once it is the live link sits at the top of this page.
+This opens the dashboard in your browser at http://localhost:8501. Pick a forecast model in the
+sidebar, then move through the four tabs described above. A hosted version can be deployed to
+Streamlit Community Cloud, and once it is the live link sits at the top of this page.
 
 ## The API
 
@@ -212,11 +211,15 @@ be changed in one place.
 
 - ERCOT day ahead and real time prices, the day ahead demand forecast, and weather zone temperature,
   all from the hosted gridstatus.io API.
-- EIA 930 grid demand from the US Energy Information Administration, an optional extra feed that the
-  forecast and the backtest do not need.
 
-## Daily refresh
+## Refreshing the data
 
-A scheduled job runs the pipeline once a day. It downloads the latest data, rebuilds every table, and
-saves the refreshed results as a downloadable artifact. It does not commit the data back into the
-repository.
+`make refresh` runs the whole pipeline end to end from the local machine. It downloads the latest
+data, rebuilds every table, and writes the refreshed results in place. It needs the gridstatus.io key
+from the setup step, and the raw history the pipeline builds on stays on the machine that runs it.
+
+## Continuous integration
+
+Every push and pull request runs the lint and the full test suite on GitHub Actions. The suite uses
+synthetic and fixture data, so it needs no API keys and no network, which makes it a fast and
+reproducible check that the whole pipeline still works.

@@ -12,7 +12,6 @@ from datetime import date
 from pathlib import Path
 
 from ..config import Config, load_config
-from .eia930 import fetch_eia930
 from .ercot import fetch_da_spp, fetch_demand_forecast, fetch_rt_spp
 from .weather import fetch_weather
 
@@ -23,12 +22,10 @@ _FETCHERS = {
     "ercot_spp_rt": fetch_rt_spp,
     "ercot_demand": fetch_demand_forecast,
     "weather": fetch_weather,
-    "eia930": fetch_eia930,
 }
 
-# the sources the pipeline needs, so --source all pulls exactly these. eia930 is left out
-# because the day ahead demand forecast now comes from ERCOT, and it stays opt in by name
-_PIPELINE_SOURCES = ["ercot_spp_da", "ercot_spp_rt", "ercot_demand", "weather"]
+# the sources the pipeline needs, so --source all pulls exactly these, which is every fetcher
+_PIPELINE_SOURCES = list(_FETCHERS)
 
 log = logging.getLogger("ercot_bess.ingest")
 

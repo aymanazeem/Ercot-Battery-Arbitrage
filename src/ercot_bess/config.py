@@ -50,7 +50,6 @@ class Regime(_Strict):
 class MarketSpec(_Strict):
     timezone_display: str
     primary_settlement_point: str
-    secondary_settlement_point: str
 
 
 class MarketConfig(_Strict):
@@ -75,19 +74,12 @@ class ErcotSource(_Strict):
     api_key_env: str = "GRIDSTATUS_API_KEY"
 
 
-class Eia930Source(_Strict):
-    balancing_authority: str
-    api_path: str
-    api_key_env: str
-
-
 class WeatherSource(_Strict):
     source: str
 
 
 class Sources(_Strict):
     ercot: ErcotSource
-    eia930: Eia930Source
     weather: WeatherSource
 
 

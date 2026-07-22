@@ -15,7 +15,6 @@ _LAZY_EXPORTS = {
     "fetch_da_spp": "ercot",
     "fetch_rt_spp": "ercot",
     "fetch_demand_forecast": "ercot",
-    "fetch_eia930": "eia930",
     "fetch_weather": "weather",
     "GridStatusClient": "gridstatus_io",
     "cache_days": "raw_store",

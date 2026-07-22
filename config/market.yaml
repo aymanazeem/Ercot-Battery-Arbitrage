@@ -1,7 +1,6 @@
 market:
   timezone_display: America/Chicago
   primary_settlement_point: HB_HUBAVG
-  secondary_settlement_point: HB_WEST
 
 # offer cap regimes, a null bound means open ended
 # rows are tagged by regime so a backtest never blends the three distributions

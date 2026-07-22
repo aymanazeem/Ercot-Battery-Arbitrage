@@ -1,9 +1,9 @@
 PY ?= .venv/bin/python
 
-.PHONY: setup test \
+.PHONY: setup test lint \
 	test-config test-ingest test-validate test-features test-forecast test-optimise \
 	test-backtest test-api test-dashboard \
-	ingest build features forecast backtest serve dashboard
+	ingest build features forecast backtest refresh serve dashboard
 
 setup:
 	python3 -m venv .venv
@@ -12,6 +12,9 @@ setup:
 
 test:
 	$(PY) -m pytest
+
+lint:
+	$(PY) -m ruff check .
 
 test-config:
 	$(PY) -m pytest -m config
@@ -54,6 +57,10 @@ forecast:
 
 backtest:
 	$(PY) -m ercot_bess.backtest $(ARGS)
+
+# refresh every table end to end from the latest data, the local pipeline run
+refresh:
+	$(PY) -m ercot_bess.api.orchestrator $(ARGS)
 
 serve:
 	$(PY) -m uvicorn ercot_bess.api.app:app $(ARGS)

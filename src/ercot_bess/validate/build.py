@@ -54,6 +54,9 @@ def _build_prices(raw: pd.DataFrame, cfg: Config, schema: dict[str, str]) -> pd.
             PRICE: pd.to_numeric(raw[_HOSTED_PRICE], errors="coerce"),
         }
     )
+    # keep only the configured hub, so a raw layer that cached other locations does not
+    # carry them into the processed tables the rest of the pipeline reads
+    frame = frame[frame[SETTLEMENT_POINT] == market.market.primary_settlement_point]
     frame = sort_and_dedup(frame, [INTERVAL, SETTLEMENT_POINT])
     frame[REGIME] = assign_regime(frame[INTERVAL], market.regimes, market.market.timezone_display)
     return enforce_schema(frame, schema)

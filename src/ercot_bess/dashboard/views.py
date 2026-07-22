@@ -45,11 +45,6 @@ DURATION_H = "duration_h"
 CYCLING_COST = "cycling_cost_per_mwh"
 
 
-def available_settlement_points(prices: pd.DataFrame) -> list[str]:
-    """The settlement points present in a price table, sorted for a stable selector."""
-    return sorted(prices[SETTLEMENT_POINT].dropna().unique().tolist())
-
-
 def available_models(forecasts: pd.DataFrame) -> list[str]:
     """The models present in the forecasts table, sorted for a stable selector."""
     return sorted(forecasts[MODEL].dropna().unique().tolist())

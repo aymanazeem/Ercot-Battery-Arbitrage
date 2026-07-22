@@ -219,3 +219,38 @@ def test_fall_back_day_does_not_multiply_lag_rows():
     day_after = out[out[DELIVERY_DATE] == pd.Timestamp("2023-11-06")]
     assert len(day_after) == 24
     assert out.groupby(DELIVERY_DATE).size().max() == 24
+
+
+def _spring_inputs():
+    # a window spanning the spring daylight saving change on 2024-03-10, the twenty three hour day
+    start = pd.Timestamp("2024-03-03", tz="America/Chicago")
+    local = pd.date_range(start, periods=15 * 24, freq="h")
+    utc = local.tz_convert("UTC")
+    day_ord = (local.normalize() - start.normalize()).days
+    prices = pd.DataFrame(
+        {
+            "interval_start_utc": utc,
+            "settlement_point": pd.array([_PRIMARY] * len(utc), dtype="string"),
+            "price_usd_per_mwh": [_price(day, hour) for day, hour in zip(day_ord, local.hour)],
+            "regime": pd.array(["swcap5000"] * len(utc), dtype="string"),
+        }
+    )
+    load = pd.DataFrame({"interval_start_utc": utc, "da_demand_forecast_mw": 41000.0})
+    weather = pd.DataFrame({"interval_start_utc": utc, "temp_c_ercot": 10.0})
+    return prices, load, weather
+
+
+def test_spring_forward_gap_does_not_cascade_into_later_days():
+    cfg = load_config()
+    prices, load, weather = _spring_inputs()
+    out = build_model_matrix(prices, load, weather, cfg)
+    kept = set(out[DELIVERY_DATE].unique())
+
+    # the twenty three hour transition day itself has no two a.m. delivery price, so it drops
+    assert pd.Timestamp("2024-03-10") not in kept
+    # but the days that lag one, two, three, and seven days from it must keep their full grid,
+    # the gap filled lag source stops the missing hour cascading into them
+    for follower in ("2024-03-11", "2024-03-12", "2024-03-13", "2024-03-17"):
+        day = out[out[DELIVERY_DATE] == pd.Timestamp(follower)]
+        assert len(day) == 24
+    assert out.groupby(DELIVERY_DATE).size().max() == 24

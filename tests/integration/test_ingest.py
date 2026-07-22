@@ -62,14 +62,14 @@ def test_fetch_da_spp_two_day_window_has_expected_columns_and_stamp(tmp_path):
     expected = {"interval_start_utc", "location", "spp", "retrieved_at_utc"}
     assert expected <= set(frame.columns)
     assert (frame["retrieved_at_utc"] == _NOW).all()
-    # one ranged query covering the whole window, filtered to the two configured hubs
+    # one ranged query covering the whole window, filtered to the configured hub
     assert len(fake.calls) == 1
     dataset, start, end, points = fake.calls[0]
     assert (dataset, start, end) == (_HOSTED_DA, _START, _END)
-    assert points == ("HB_HUBAVG", "HB_WEST")
+    assert points == ("HB_HUBAVG",)
 
-    two_hubs_two_days = 4
-    assert len(frame) == two_hubs_two_days
+    one_hub_two_days = 2
+    assert len(frame) == one_hub_two_days
     assert (tmp_path / "ercot_spp_da" / "date=2024-01-01" / "data.parquet").exists()
     assert (tmp_path / "ercot_spp_da" / "date=2024-01-02" / "data.parquet").exists()
 
@@ -84,7 +84,7 @@ def test_rerun_does_not_refetch_or_duplicate_partitions(tmp_path):
     frame = fetch_da_spp(cfg, _START, _END, tmp_path, client=fake, now_utc=_NOW)
 
     assert fake.calls == []
-    assert len(frame) == 4
+    assert len(frame) == 2
     partitions = list((tmp_path / "ercot_spp_da").glob("date=*/data.parquet"))
     assert len(partitions) == 2
 

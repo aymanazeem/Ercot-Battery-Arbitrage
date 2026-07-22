@@ -31,9 +31,8 @@ _LOCATION = "location"
 
 
 def settlement_points(cfg: Config) -> list[str]:
-    """The primary and secondary hubs from market.yaml, in that order."""
-    market = cfg.market.market
-    return [market.primary_settlement_point, market.secondary_settlement_point]
+    """The settlement points to collect, the primary hub from market.yaml."""
+    return [cfg.market.market.primary_settlement_point]
 
 
 def fetch_da_spp(

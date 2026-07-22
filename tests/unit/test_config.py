@@ -37,7 +37,6 @@ def test_load_config_returns_populated_typed_objects():
     assert {r.name for r in cfg.market.regimes} == {"pre2022", "swcap5000", "rtcb"}
 
     assert cfg.data.window.backtest_start.year == 2025
-    assert cfg.data.sources.eia930.api_key_env == "EIA_API_KEY"
 
     assert cfg.model.features.price_lag_days == [1, 2, 3, 7]
     assert isinstance(cfg.model.seed, int)

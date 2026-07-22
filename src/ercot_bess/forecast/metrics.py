@@ -74,7 +74,10 @@ def _add_rel_mae(metrics: pd.DataFrame) -> pd.DataFrame:
     merged = metrics.merge(reference, on=[SETTLEMENT_POINT, REGIME, HOUR_OF_DAY], how="left")
     naive_mae = merged[_NAIVE_MAE].to_numpy(dtype=float)
     model_mae = merged[MAE].to_numpy(dtype=float)
-    merged[REL_MAE] = np.where(naive_mae > 0.0, model_mae / naive_mae, np.nan)
+    # divide only where the baseline error is positive, leaving a zero divisor undefined
+    merged[REL_MAE] = np.divide(
+        model_mae, naive_mae, out=np.full_like(model_mae, np.nan), where=naive_mae > 0.0
+    )
     return merged.drop(columns=_NAIVE_MAE)
 
 

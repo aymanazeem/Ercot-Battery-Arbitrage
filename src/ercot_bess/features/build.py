@@ -72,17 +72,33 @@ def _hub_frame(da_prices: pd.DataFrame, cfg: Config) -> pd.DataFrame:
     )
 
 
+def _complete_day_hours(hub: pd.DataFrame) -> pd.DataFrame:
+    """One row per delivery day and hour of day zero to twenty three, for use as a lag source.
+
+    ERCOT runs twenty three clock hours on the spring daylight saving day and twenty five on the
+    autumn one. The autumn repeat is collapsed to its first reading, and the single spring gap hour
+    is filled by interpolating its neighbours. This touches the lag source only, which feeds later
+    days' features, never the realised target rows, so no invented price reaches the backtest. It
+    stops a missing hour on a transition day from cascading into every day that lags from it.
+    """
+    deduped = hub[[DELIVERY_DATE, HOUR_OF_DAY, TARGET]].drop_duplicates(
+        [DELIVERY_DATE, HOUR_OF_DAY], keep="first"
+    )
+    days = deduped[DELIVERY_DATE].unique()
+    grid = pd.MultiIndex.from_product([days, range(24)], names=[DELIVERY_DATE, HOUR_OF_DAY])
+    full = deduped.set_index([DELIVERY_DATE, HOUR_OF_DAY]).reindex(grid).reset_index()
+    full[TARGET] = full.groupby(DELIVERY_DATE)[TARGET].transform(
+        lambda day: day.interpolate(limit_area="inside")
+    )
+    return full
+
+
 def _add_price_lags(matrix: pd.DataFrame, hub: pd.DataFrame, lag_days: list[int]) -> pd.DataFrame:
     """Attach the autoregressive price lags by joining the hub to its own past days."""
+    complete = _complete_day_hours(hub)
     out = matrix
     for lag in lag_days:
-        source = (
-            hub[[DELIVERY_DATE, HOUR_OF_DAY, TARGET]]
-            # the autumn daylight saving change gives one local hour two rows, keep one so
-            # the join stays one to one and a source day cannot multiply the target rows
-            .drop_duplicates([DELIVERY_DATE, HOUR_OF_DAY], keep="first")
-            .rename(columns={TARGET: price_lag_name(lag)})
-        )
+        source = complete.rename(columns={TARGET: price_lag_name(lag)}).copy()
         # shift the source day forward so a past day lands on the day it is a lag for
         source[DELIVERY_DATE] = source[DELIVERY_DATE] + lag * _ONE_DAY
         out = out.merge(source, on=[DELIVERY_DATE, HOUR_OF_DAY], how="left")

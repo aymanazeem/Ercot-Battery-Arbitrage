@@ -42,21 +42,20 @@ from ercot_bess.features.schema import HOUR_OF_DAY
 pytestmark = pytest.mark.dashboard
 
 _POINT = "HB_HUBAVG"
-_OTHER = "HB_WEST"
 _TZ = "America/Chicago"
 _DAY = pd.Timestamp("2024-06-01")
 
 
 def _prices() -> pd.DataFrame:
-    """Three hourly day ahead prices for two hubs, the primary ending on a missing value."""
+    """Three hourly day ahead prices for the hub, ending on a missing value."""
     start = pd.Timestamp("2024-06-01 05:00", tz="UTC")
     interval = pd.date_range(start, periods=3, freq="h")
     return pd.DataFrame(
         {
-            INTERVAL: [*interval, *interval],
-            SETTLEMENT_POINT: [_POINT] * 3 + [_OTHER] * 3,
-            PRICE: [10.0, 20.0, np.nan, 1.0, 2.0, 3.0],
-            REGIME: ["swcap5000"] * 6,
+            INTERVAL: interval,
+            SETTLEMENT_POINT: [_POINT] * 3,
+            PRICE: [10.0, 20.0, np.nan],
+            REGIME: ["swcap5000"] * 3,
         }
     )
 
@@ -78,11 +77,6 @@ def _day_rows() -> pd.DataFrame:
         }
     )
     return rows.sample(frac=1.0, random_state=0)
-
-
-def test_available_settlement_points_are_sorted_and_unique():
-    points = views.available_settlement_points(_prices())
-    assert points == [_POINT, _OTHER]
 
 
 def test_price_history_filters_sorts_and_converts_to_local_wall_clock():
@@ -276,19 +270,17 @@ def test_available_days_are_most_recent_first():
 
 
 def _sensitivities() -> pd.DataFrame:
-    records = []
-    for point in (_POINT, _OTHER):
-        for duration in (1.0, 2.0, 4.0):
-            records.append(
-                {
-                    SETTLEMENT_POINT: point,
-                    views.DURATION_H: duration,
-                    views.CYCLING_COST: 0.0,
-                    SCENARIO: SCENARIO_CEILING,
-                    "n_days": 30,
-                    USD_PER_KW_YEAR: duration * 10.0,
-                }
-            )
+    records = [
+        {
+            SETTLEMENT_POINT: _POINT,
+            views.DURATION_H: duration,
+            views.CYCLING_COST: 0.0,
+            SCENARIO: SCENARIO_CEILING,
+            "n_days": 30,
+            USD_PER_KW_YEAR: duration * 10.0,
+        }
+        for duration in (1.0, 2.0, 4.0)
+    ]
     return pd.DataFrame(records)
 
 
